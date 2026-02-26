@@ -221,5 +221,6 @@ Feel free to fork this project and add your own enhancements! Some ideas:
 ---
 
 **Built with ❤️ and Python | SkillForge v1.0**
-#   - S k i l l F o r g e - - - P e r s o n a l - S k i l l - T r a c k e r  
+
+ 
  
