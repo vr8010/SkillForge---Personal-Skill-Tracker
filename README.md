@@ -157,6 +157,7 @@ Applications capped at 20 uses
 ✔ Emphasizes real-world implementation.
 
 📁 Project Structure
+```
 skillforge/
 │
 ├── skillforge.py
@@ -173,6 +174,7 @@ SkillForgeManager
 
 SkillForgeUI
 └── Uses SkillForgeManager
+```
 💡 Key Highlights
 
 ✅ Zero external dependencies
