@@ -1,264 +1,287 @@
-⚡ SkillForge – Personal Skill Tracker
+# ⚡ SkillForge – Personal Skill Tracker
 
-A professional, console-based skill management system built with advanced Object-Oriented Programming principles in Python.
+> A professional, console-based skill management system built with advanced Object-Oriented Programming principles in Python.
 
-Track. Measure. Master. 🚀
+**Track. Measure. Master. 🚀**
 
-🎯 Project Overview
+---
 
-SkillForge is a portfolio-ready Python application that demonstrates enterprise-level OOP architecture while remaining beginner-friendly.
+# 🎯 Project Overview
 
-It allows users to track their skill development journey using intelligent mastery scoring algorithms that differentiate between technical and soft skills.
+**SkillForge** is a portfolio-ready Python application that demonstrates enterprise-level OOP architecture while remaining beginner-friendly.
 
-This project focuses on clean architecture, scalability, and real-world software design principles.
+It enables users to track their skill development journey using intelligent mastery scoring algorithms that differentiate between technical and soft skills.
 
-✨ Features
+This project emphasizes:
 
-🔹 Dual Skill Types (Technical & Soft Skills)
+* Clean architecture
+* Scalability
+* Maintainability
+* Real-world software design principles
 
-🔹 Intelligent Mastery Scoring (Different formulas per type)
+---
 
-🔹 Progress Tracking (0–100%)
+# ✨ Features
 
-🔹 Practice Hour Logging
+* 🔹 Dual Skill Types (Technical & Soft Skills)
+* 🔹 Intelligent Mastery Scoring (Type-specific formulas)
+* 🔹 Progress Tracking (0–100%)
+* 🔹 Practice Hour Logging
+* 🔹 Real-World Soft Skill Application Logging
+* 🔹 Persistent Storage (JSON-based `.txt` file)
+* 🔹 Statistical Dashboard
+* 🔹 Robust Input Validation
+* 🔹 Professional Console UI
+* 🔹 Automatic Save & Load System
 
-🔹 Real-World Soft Skill Applications Logging
+---
 
-🔹 Persistent Storage (JSON-based .txt file)
+# 🏗️ OOP Concepts Demonstrated
 
-🔹 Statistical Dashboard
+## 1️⃣ Abstraction
 
-🔹 Robust Input Validation
+* `SkillBase` abstract class using Python `ABC`
+* Abstract methods:
 
-🔹 Professional Console UI
+  * `calculate_mastery_score()`
+  * `get_skill_type()`
 
-🔹 Automatic Save & Load System
+---
 
-🏗️ OOP Concepts Demonstrated
-1️⃣ Abstraction
+## 2️⃣ Encapsulation
 
-SkillBase abstract class using Python ABC
+* Private attributes: `__name`, `__category`
+* Protected attributes: `_progress`, `_practice_hours`
+* Property decorators for controlled access
 
-Abstract methods:
+---
 
-calculate_mastery_score()
+## 3️⃣ Inheritance
 
-get_skill_type()
+* `TechnicalSkill` and `SoftSkill` inherit from `SkillBase`
+* Child classes extend parent functionality
 
-2️⃣ Encapsulation
+---
 
-Private attributes (__name, __category)
-
-Protected attributes (_progress, _practice_hours)
-
-Property decorators for controlled access
-
-3️⃣ Inheritance
-
-TechnicalSkill and SoftSkill inherit from SkillBase
-
-Child classes extend parent functionality
-
-4️⃣ Polymorphism
+## 4️⃣ Polymorphism
 
 Method overriding for:
 
-calculate_mastery_score()
+* `calculate_mastery_score()`
+* `__str__()`
+* `to_dict()`
 
-__str__()
+Same interface → Different behavior.
 
-to_dict()
+---
 
-Same interface, different behavior
+## 5️⃣ Composition
 
-5️⃣ Composition
+`SkillForgeManager` manages a list of `SkillBase` objects.
 
-SkillForgeManager manages a list of SkillBase objects
+Demonstrates **"has-a" relationship** instead of only "is-a".
 
-Demonstrates "has-a" relationship
+---
 
-6️⃣ Exception Handling
+## 6️⃣ Exception Handling
 
-Custom validation using ValueError and TypeError
+* Custom validation using `ValueError` and `TypeError`
+* File handling with `try-except`
+* Graceful recovery with user-friendly messages
 
-File handling with try-except blocks
+---
 
-Graceful recovery with user-friendly messages
+## 7️⃣ File Handling
 
-7️⃣ File Handling
+* JSON-based persistence (`skillforge_data.txt`)
+* Automatic save/load functionality
+* Serialization & deserialization
 
-JSON-based persistence to skillforge_data.txt
+---
 
-Automatic save/load functionality
+## 8️⃣ Dynamic Object Creation
 
-Serialization & deserialization
+* Runtime object instantiation
+* Factory-like reconstruction during JSON loading
 
-8️⃣ Dynamic Object Creation
+---
 
-Runtime object instantiation
+# 📦 Installation
 
-Factory-like pattern implementation
+## ✅ Prerequisites
 
-📦 Installation
-✅ Prerequisites
+* Python 3.7 or higher
 
-Python 3.7 or higher
+## ▶️ Run the Application
 
-▶️ Run the Application
+```bash
 python skillforge.py
+```
 
 No external dependencies required.
-Uses only Python standard library.
+Uses only the Python standard library.
 
-🚀 How It Works
-Application Flow
+---
 
-Application loads saved skills from skillforge_data.txt
+# 🚀 How It Works
 
-Interactive console menu displays options
+### Application Flow
 
-User adds skills with attributes
+1. Application loads saved skills from `skillforge_data.txt`
+2. Interactive console menu displays options
+3. User adds skills with attributes
+4. Updates progress & logs practice hours
+5. Views statistics dashboard
+6. Data automatically saves on exit
 
-Updates progress & logs practice hours
+---
 
-Views statistics dashboard
+# 🧮 Mastery Score Formulas
 
-Data automatically saves on exit
+## 🔧 Technical Skills
 
-🧮 Mastery Score Formulas
-🔧 Technical Skills
+```
 Mastery =
 (Progress × 0.5)
 + (Practice_Factor × 0.3)
 + (Difficulty_Bonus × 0.2)
+```
 
 Where:
 
-Progress = 0–100%
-
-Practice_Factor = Normalized practice hours (capped at 100 hrs)
-
-Difficulty_Bonus = Difficulty level (1–10 converted to %)
+* Progress = 0–100%
+* Practice_Factor = Normalized practice hours (capped at 100 hrs)
+* Difficulty_Bonus = Difficulty level (1–10 converted to %)
 
 ✔ Focuses on measurable technical growth.
 
-🤝 Soft Skills
+---
+
+## 🤝 Soft Skills
+
+```
 Mastery =
 (Progress × 0.4)
 + (Practice_Factor × 0.3)
 + (Application_Factor × 0.3)
+```
 
 Where:
 
-Practice capped at 50 hrs
-
-Applications capped at 20 uses
+* Practice capped at 50 hrs
+* Applications capped at 20 uses
 
 ✔ Emphasizes real-world implementation.
 
-📁 Project Structure
+---
+
+# 📁 Project Structure
+
 ```
 skillforge/
 │
 ├── skillforge.py
 ├── skillforge_data.txt
 └── README.md
-🎨 Architecture Overview
-SkillBase (Abstract)
-│
-├── TechnicalSkill
-└── SoftSkill
-
-SkillForgeManager
-└── Contains List[SkillBase]
-
-SkillForgeUI
-└── Uses SkillForgeManager
 ```
-💡 Key Highlights
 
-✅ Zero external dependencies
+---
 
-✅ Clean architecture
+# 🏗️ Architecture Overview
 
-✅ SOLID principles applied
+```
+User Interface Layer
+   └── SkillForgeUI
+            ↓
+Business Logic Layer
+   └── SkillForgeManager
+            ↓
+Domain Layer
+   ├── SkillBase (Abstract)
+   ├── TechnicalSkill
+   └── SoftSkill
+            ↓
+Persistence Layer
+   └── JSON File Storage
+```
 
-✅ Type hints supported
+---
 
-✅ Modular and extendable
+# 🎯 Key Design Principles
 
-✅ Production-style validation
+* ✅ Separation of Concerns
+* ✅ Layered Architecture
+* ✅ SOLID Principles
+* ✅ Composition over Inheritance
+* ✅ Modular & Extendable Design
+* ✅ Type Hint Support
+* ✅ Production-style Validation
 
-✅ Resume-ready OOP project
+---
 
-🔮 Future Enhancements
+# 🔮 Future Enhancements
 
-Skill category filtering
+* Skill category filtering
+* Goal & deadline tracking
+* ASCII progress charts
+* PDF/HTML report export
+* AI-based skill suggestions
+* Achievement badge system
+* Industry benchmark comparison
+* Multi-user profile support
+* Data analytics module
+* Optional cloud sync
 
-Goal & deadline tracking
+---
 
-ASCII progress charts
-
-PDF/HTML report export
-
-AI-based skill suggestions
-
-Achievement badge system
-
-Industry benchmark comparison
-
-Multi-user profile support
-
-Data analytics module
-
-Optional cloud sync
-
-🎓 Learning Outcomes
+# 🎓 Learning Outcomes
 
 This project demonstrates:
 
-Designing scalable class hierarchies
+* Designing scalable class hierarchies
+* Applying abstraction effectively
+* Proper encapsulation strategies
+* Method overriding & polymorphism
+* Composition-based architecture
+* Professional error handling
+* JSON-based persistence
+* Clean separation of concerns
 
-Applying abstraction effectively
+---
 
-Proper encapsulation strategies
+# 👨‍💻 Author
 
-Method overriding & polymorphism
+**Vishal Rathod**
 
-Composition over inheritance
+🌐 Portfolio:
+[https://vr8010.github.io/Vishal-Rathod-/](https://vr8010.github.io/Vishal-Rathod-/)
 
-Professional error handling
+💻 GitHub:
+[https://github.com/vr8010](https://github.com/vr8010)
 
-JSON-based persistence
+🔗 LinkedIn:
+[https://www.linkedin.com/in/vishal-rathod-508b89243/](https://www.linkedin.com/in/vishal-rathod-508b89243/)
 
-Separation of concerns
+---
 
-👨‍💻 Author
-
-Vishal Rathod
-
-🌐 Portfolio: https://vr8010.github.io/Vishal-Rathod-/
-
-💻 GitHub: https://github.com/vr8010
-
-🔗 LinkedIn: https://www.linkedin.com/in/vishal-rathod-508b89243/
-
-📝 License
+# 📝 License
 
 This project is open-source and available for educational purposes.
 
-🤝 Contributing
+---
+
+# 🤝 Contributing
 
 Feel free to fork and enhance:
 
-Add new skill types
+* Add new skill types
+* Improve mastery algorithm
+* Create GUI version (Tkinter)
+* Add data visualization (Matplotlib)
+* Build web version (Flask / Django)
 
-Improve mastery algorithm
-
-Create GUI version (Tkinter)
-
-Add data visualization using Matplotlib
-
-Build web version (Flask/Django)
+---
 
 ⭐ If you found this useful, consider giving it a star on GitHub!
+
+---
