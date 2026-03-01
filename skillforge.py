@@ -358,6 +358,7 @@ class SkillForgeManager:
 # USER INTERFACE - Clean Console Interaction
 # ============================================================================
 
+
 class SkillForgeUI:
     """
     User interface handler for console interaction.
@@ -522,6 +523,7 @@ class SkillForgeUI:
                 print(f"\n✗ Unexpected error: {e}")
 
 
+
 # ============================================================================
 # MAIN ENTRY POINT
 # ============================================================================
@@ -529,3 +531,4 @@ class SkillForgeUI:
 if __name__ == "__main__":
     app = SkillForgeUI()
     app.run()
+
