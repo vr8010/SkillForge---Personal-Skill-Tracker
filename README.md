@@ -187,8 +187,9 @@ skillforge/
 
 ---
 
-!🏗️ Architecture(diagram.png)
----
+## 🏗️ Architecture Diagram
+
+![Architecture Diagram](diagram.png)
 
 # 🎯 Key Design Principles
 
@@ -268,5 +269,6 @@ Feel free to fork and enhance:
 ⭐ If you found this useful, consider giving it a star on GitHub!
 
 ---
+
 
 
