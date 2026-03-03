@@ -187,24 +187,8 @@ skillforge/
 
 ---
 
-# 🏗️ Architecture Overview
-
-```
-User Interface Layer
-   └── SkillForgeUI
-            ↓
-Business Logic Layer
-   └── SkillForgeManager
-            ↓
-Domain Layer
-   ├── SkillBase (Abstract)
-   ├── TechnicalSkill
-   └── SoftSkill
-            ↓
-Persistence Layer
-   └── JSON File Storage
-```
-
+!END
+🏗️ Architecture(SkillForge – System Flow Diagram Structure)
 ---
 
 # 🎯 Key Design Principles
@@ -285,3 +269,4 @@ Feel free to fork and enhance:
 ⭐ If you found this useful, consider giving it a star on GitHub!
 
 ---
+
