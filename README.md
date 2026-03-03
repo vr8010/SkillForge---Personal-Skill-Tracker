@@ -187,8 +187,7 @@ skillforge/
 
 ---
 
-!END
-🏗️ Architecture(SkillForge – System Flow Diagram Structure)
+!🏗️ Architecture(diagram.png)
 ---
 
 # 🎯 Key Design Principles
@@ -269,4 +268,5 @@ Feel free to fork and enhance:
 ⭐ If you found this useful, consider giving it a star on GitHub!
 
 ---
+
 
