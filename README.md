@@ -13,6 +13,8 @@ SkillForge is a portfolio-ready Python application that demonstrates enterprise-
 - **Progress Tracking**: Monitor your improvement from 0-100%
 - **Practice Hour Logging**: Keep track of time invested in each skill
 - **Real-World Applications**: Log practical uses of soft skills
+- **Skill History Tracking**: Complete audit trail of all skill changes with timestamps
+- **Mastery Change Analytics**: Track how each action impacts your mastery score
 - **Persistent Storage**: Automatic save/load functionality using file handling
 - **Statistical Dashboard**: View comprehensive statistics about your skill portfolio
 - **Input Validation**: Robust error handling and data validation
@@ -81,13 +83,14 @@ No external dependencies required - uses only Python standard library!
 
 ### Application Flow
 
-1. **Launch**: Application loads previously saved skills from `skillforge_data.txt`
-2. **Menu**: Interactive console menu with 8 options
+1. **Launch**: Application loads previously saved skills from `skillforge_data.json`
+2. **Menu**: Interactive console menu with 9 options
 3. **Add Skills**: Create technical or soft skills with specific attributes
 4. **Track Progress**: Update progress percentage, log practice hours
 5. **View Portfolio**: Display all skills sorted by mastery score
 6. **Statistics**: View aggregate statistics across all skills
-7. **Auto-Save**: Data persists automatically on exit
+7. **History Tracking**: View complete change history for any skill
+8. **Auto-Save**: Data persists automatically on exit
 
 ### User Interaction Example
 
@@ -96,6 +99,14 @@ No external dependencies required - uses only Python standard library!
 ======================================================================
 1. Add Technical Skill
 2. Add Soft Skill
+3. Update Skill Progress
+4. Log Practice Hours
+5. Log Soft Skill Application
+6. View All Skills
+7. View Statistics
+8. View Skill History
+9. Save & Exit
+======================================================================
 3. Update Skill Progress
 4. Log Practice Hours
 5. Log Soft Skill Application
@@ -138,6 +149,55 @@ Where:
 
 **Rationale**: Soft skills emphasize real-world application and practice over theoretical progress.
 
+## 📜 Skill History Tracking
+
+SkillForge automatically tracks every change made to your skills, creating a complete audit trail of your learning journey.
+
+### What Gets Tracked
+
+Every skill maintains a detailed history log that captures:
+
+- **Skill Creation**: Initial setup with timestamp
+- **Progress Updates**: Old vs new progress, mastery score changes
+- **Practice Hours**: Hours logged, cumulative totals, impact on mastery
+- **Real-World Applications**: Application count changes (soft skills only)
+- **Mastery Score Changes**: Before/after mastery scores for every action
+
+### History Entry Structure
+
+Each history entry contains:
+```json
+{
+  "timestamp": "2026-03-05 14:30:45",
+  "action": "progress_update",
+  "description": "Progress updated",
+  "details": {
+    "old_progress": 50.0,
+    "new_progress": 75.0,
+    "progress_change": 25.0,
+    "old_mastery": 45.50,
+    "new_mastery": 67.80,
+    "mastery_change": 22.30
+  }
+}
+```
+
+### Viewing History
+
+Use menu option 8 to view complete history for any skill:
+- Chronological list of all changes
+- Detailed metrics for each action
+- Impact analysis on mastery scores
+- Timestamps for accountability
+
+### Benefits
+
+- **Accountability**: Track your actual effort and progress
+- **Insights**: Understand which actions improve mastery most
+- **Motivation**: See your growth journey over time
+- **Analytics**: Data-driven decisions about skill development
+- **Audit Trail**: Complete record for portfolio/resume purposes
+
 ## 📁 Project Structure
 
 ```
@@ -167,6 +227,8 @@ SkillForgeUI (Interface Layer)
 - **Skill Categories**: Group skills by custom categories with filtering
 - **Goal Setting**: Set target mastery scores with deadline tracking
 - **Visual Progress**: ASCII-based progress bars and charts
+- **History Analytics**: Visualize skill growth trends over time
+- **Export History**: Generate detailed history reports in CSV/PDF format
 - **Export Reports**: Generate PDF or HTML skill reports
 - **Skill Recommendations**: AI-based suggestions for skill improvement
 - **Milestone System**: Achievements and badges for reaching goals
@@ -221,5 +283,6 @@ Feel free to fork this project and add your own enhancements! Some ideas:
 ---
 
 **Built with ❤️ and Python | SkillForge v1.0**
-#   - S k i l l F o r g e - - - P e r s o n a l - S k i l l - T r a c k e r  
+#   - S k i l l F o r g e - - - P e r s o n a l - S k i l l - T r a c k e r 
+ 
  
