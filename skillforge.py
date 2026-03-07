@@ -7,7 +7,139 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import json
 import os
+import math
 from typing import List, Dict, Optional, Any
+
+
+# ============================================================================
+# MASTERY SCORING ALGORITHMS
+# ============================================================================
+
+class MasteryAlgorithm:
+    """
+    Collection of mastery scoring algorithms.
+    Demonstrates: Strategy Pattern, Mathematical Modeling
+    """
+    
+    @staticmethod
+    def linear_weighted(progress: float, practice_hours: float, 
+                       weight_factor: float, hour_cap: float = 100) -> float:
+        """
+        Linear weighted algorithm with diminishing returns on practice hours.
+        
+        Formula: (Progress × 0.6) + (Normalized_Hours × 0.4) × Weight_Factor
+        """
+        practice_factor = min((practice_hours / hour_cap) * 100, 100)
+        score = (progress * 0.6) + (practice_factor * 0.4)
+        return min(score * weight_factor, 100.0)
+    
+    @staticmethod
+    def exponential_growth(progress: float, practice_hours: float, 
+                          base_multiplier: float = 1.0) -> float:
+        """
+        Exponential growth model - rewards consistent practice.
+        
+        Formula: Progress × (1 + log(1 + Hours/10)) × Base_Multiplier
+        """
+        if practice_hours == 0:
+            return progress * 0.5 * base_multiplier
+        
+        growth_factor = 1 + math.log(1 + practice_hours / 10)
+        score = progress * growth_factor * base_multiplier
+        return min(score, 100.0)
+    
+    @staticmethod
+    def sigmoid_curve(progress: float, practice_hours: float, 
+                     steepness: float = 0.1) -> float:
+        """
+        Sigmoid (S-curve) model - realistic learning curve.
+        
+        Formula: 100 / (1 + e^(-steepness × (Progress + Hours - 50)))
+        """
+        combined_input = (progress + min(practice_hours, 100)) / 2
+        score = 100 / (1 + math.exp(-steepness * (combined_input - 50)))
+        return score
+    
+    @staticmethod
+    def balanced_composite(progress: float, practice_hours: float, 
+                          additional_factor: float, factor_weight: float = 0.3) -> float:
+        """
+        Balanced composite algorithm with three factors.
+        
+        Formula: (Progress × 0.4) + (Hours × 0.3) + (Additional × factor_weight)
+        """
+        progress_component = progress * 0.4
+        practice_component = min((practice_hours / 100) * 100, 100) * 0.3
+        additional_component = additional_factor * factor_weight
+        
+        score = progress_component + practice_component + additional_component
+        return min(score, 100.0)
+    
+    @staticmethod
+    def difficulty_adjusted(progress: float, practice_hours: float, 
+                           difficulty: int, max_difficulty: int = 10) -> float:
+        """
+        Difficulty-adjusted algorithm for technical skills.
+        
+        Formula: Base_Score × (1 + Difficulty_Bonus) where bonus scales with difficulty
+        """
+        base_score = (progress * 0.5) + (min(practice_hours / 100, 1.0) * 100 * 0.3)
+        difficulty_bonus = (difficulty / max_difficulty) * 0.2
+        
+        score = base_score * (1 + difficulty_bonus)
+        return min(score, 100.0)
+    
+    @staticmethod
+    def application_focused(progress: float, practice_hours: float, 
+                           applications: int, app_cap: int = 20) -> float:
+        """
+        Application-focused algorithm for soft skills.
+        
+        Formula: Emphasizes real-world applications over theory
+        """
+        progress_component = progress * 0.35
+        practice_component = min((practice_hours / 50) * 100, 100) * 0.25
+        application_component = min((applications / app_cap) * 100, 100) * 0.4
+        
+        score = progress_component + practice_component + application_component
+        return min(score, 100.0)
+    
+    @staticmethod
+    def time_decay(progress: float, practice_hours: float, 
+                   days_since_update: int, decay_rate: float = 0.01) -> float:
+        """
+        Time decay model - skills degrade without practice.
+        
+        Formula: Base_Score × e^(-decay_rate × days_inactive)
+        """
+        base_score = (progress * 0.6) + (min(practice_hours / 100, 1.0) * 100 * 0.4)
+        decay_factor = math.exp(-decay_rate * days_since_update)
+        
+        return base_score * decay_factor
+    
+    @staticmethod
+    def get_mastery_level(score: float) -> str:
+        """Convert mastery score to descriptive level"""
+        if score >= 90:
+            return "🏆 Master"
+        elif score >= 75:
+            return "⭐ Expert"
+        elif score >= 60:
+            return "💪 Advanced"
+        elif score >= 40:
+            return "📈 Intermediate"
+        elif score >= 20:
+            return "🌱 Beginner"
+        else:
+            return "🔰 Novice"
+    
+    @staticmethod
+    def get_progress_bar(score: float, width: int = 20) -> str:
+        """Generate ASCII progress bar"""
+        filled = int((score / 100) * width)
+        empty = width - filled
+        bar = "█" * filled + "░" * empty
+        return f"[{bar}] {score:.1f}%"
 
 
 # ============================================================================
@@ -140,11 +272,15 @@ class SkillBase(ABC):
     def __str__(self) -> str:
         """String representation of skill"""
         mastery = self.calculate_mastery_score()
+        mastery_level = MasteryAlgorithm.get_mastery_level(mastery)
+        progress_bar = MasteryAlgorithm.get_progress_bar(mastery)
+        
         return (f"{self.get_skill_type()}: {self.__name}\n"
                 f"  Category: {self.__category}\n"
                 f"  Progress: {self._progress}%\n"
                 f"  Practice Hours: {self._practice_hours}h\n"
-                f"  Mastery Score: {mastery:.2f}/100\n"
+                f"  Mastery Score: {mastery:.2f}/100 - {mastery_level}\n"
+                f"  Mastery Bar: {progress_bar}\n"
                 f"  Last Updated: {self._last_updated}")
 
 
@@ -165,18 +301,37 @@ class TechnicalSkill(SkillBase):
     def calculate_mastery_score(self) -> float:
         """
         Technical skills mastery formula:
-        Mastery = (Progress * 0.5) + (Practice_Hours * 0.3) + (Difficulty_Bonus * 0.2)
-        Higher difficulty gives bonus points for same effort
+        Uses difficulty-adjusted algorithm with exponential growth component
         """
+        # Primary algorithm: Difficulty-adjusted
+        primary_score = MasteryAlgorithm.difficulty_adjusted(
+            self._progress,
+            self._practice_hours,
+            self.__difficulty_level
+        )
+        
+        # Secondary algorithm: Exponential growth for practice rewards
+        growth_bonus = MasteryAlgorithm.exponential_growth(
+            self._progress,
+            self._practice_hours,
+            base_multiplier=0.15
+        )
+        
+        # Combine both algorithms
+        final_score = (primary_score * 0.85) + (growth_bonus * 0.15)
+        return min(final_score, 100.0)
+    
+    def get_mastery_breakdown(self) -> Dict[str, float]:
+        """Get detailed breakdown of mastery score components"""
         difficulty_bonus = (self.__difficulty_level / 10) * 100
         practice_factor = min((self._practice_hours / 100) * 100, 100)
         
-        mastery = (
-            (self._progress * 0.5) +
-            (practice_factor * 0.3) +
-            (difficulty_bonus * 0.2)
-        )
-        return min(mastery, 100.0)
+        return {
+            'progress_contribution': self._progress * 0.5,
+            'practice_contribution': practice_factor * 0.3,
+            'difficulty_contribution': difficulty_bonus * 0.2,
+            'total_mastery': self.calculate_mastery_score()
+        }
     
     def get_skill_type(self) -> str:
         return "Technical Skill"
@@ -204,18 +359,37 @@ class SoftSkill(SkillBase):
     def calculate_mastery_score(self) -> float:
         """
         Soft skills mastery formula:
-        Mastery = (Progress * 0.4) + (Practice_Hours * 0.3) + (Applications * 0.3)
-        Real-world applications are crucial for soft skills
+        Uses application-focused algorithm with balanced composite
         """
+        # Primary algorithm: Application-focused
+        primary_score = MasteryAlgorithm.application_focused(
+            self._progress,
+            self._practice_hours,
+            self.__real_world_applications
+        )
+        
+        # Secondary algorithm: Sigmoid curve for realistic learning
+        sigmoid_score = MasteryAlgorithm.sigmoid_curve(
+            self._progress,
+            self._practice_hours,
+            steepness=0.08
+        )
+        
+        # Combine both algorithms
+        final_score = (primary_score * 0.75) + (sigmoid_score * 0.25)
+        return min(final_score, 100.0)
+    
+    def get_mastery_breakdown(self) -> Dict[str, float]:
+        """Get detailed breakdown of mastery score components"""
         practice_factor = min((self._practice_hours / 50) * 100, 100)
         application_factor = min((self.__real_world_applications / 20) * 100, 100)
         
-        mastery = (
-            (self._progress * 0.4) +
-            (practice_factor * 0.3) +
-            (application_factor * 0.3)
-        )
-        return min(mastery, 100.0)
+        return {
+            'progress_contribution': self._progress * 0.4,
+            'practice_contribution': practice_factor * 0.3,
+            'application_contribution': application_factor * 0.3,
+            'total_mastery': self.calculate_mastery_score()
+        }
     
     def get_skill_type(self) -> str:
         return "Soft Skill"
@@ -453,6 +627,98 @@ class SkillForgeManager:
         
         print(f"\nTotal History Entries: {len(history)}")
         print("="*70)
+    
+    def view_mastery_breakdown(self, name: str) -> None:
+        """Display detailed mastery score breakdown"""
+        skill = self.__find_skill(name)
+        if not skill:
+            raise ValueError(f"Skill '{name}' not found!")
+        
+        mastery = skill.calculate_mastery_score()
+        mastery_level = MasteryAlgorithm.get_mastery_level(mastery)
+        progress_bar = MasteryAlgorithm.get_progress_bar(mastery, width=30)
+        
+        print("\n" + "="*70)
+        print(f"🎯 MASTERY ANALYSIS: {skill.name}")
+        print("="*70)
+        
+        print(f"\nOverall Mastery: {mastery:.2f}/100 - {mastery_level}")
+        print(f"Progress Bar: {progress_bar}\n")
+        
+        # Get breakdown
+        breakdown = skill.get_mastery_breakdown()
+        
+        print("Score Breakdown:")
+        print("-" * 70)
+        for key, value in breakdown.items():
+            if key != 'total_mastery':
+                formatted_key = key.replace('_', ' ').title()
+                contribution_bar = MasteryAlgorithm.get_progress_bar(value, width=20)
+                print(f"  {formatted_key:.<30} {value:>6.2f} {contribution_bar}")
+        
+        print("-" * 70)
+        print(f"  {'Total Mastery Score':.<30} {breakdown['total_mastery']:>6.2f}")
+        
+        # Algorithm comparison
+        print("\n" + "="*70)
+        print("📊 ALGORITHM COMPARISON")
+        print("="*70)
+        
+        if isinstance(skill, TechnicalSkill):
+            print("\nTechnical Skill Algorithms:")
+            
+            # Get difficulty level via reflection
+            difficulty = skill.to_dict().get('difficulty_level', 5)
+            
+            linear = MasteryAlgorithm.linear_weighted(
+                skill.progress, skill.practice_hours, 1.0
+            )
+            exponential = MasteryAlgorithm.exponential_growth(
+                skill.progress, skill.practice_hours
+            )
+            sigmoid = MasteryAlgorithm.sigmoid_curve(
+                skill.progress, skill.practice_hours
+            )
+            difficulty_adj = MasteryAlgorithm.difficulty_adjusted(
+                skill.progress, skill.practice_hours, difficulty
+            )
+            
+            print(f"  Linear Weighted:        {linear:>6.2f}/100")
+            print(f"  Exponential Growth:     {exponential:>6.2f}/100")
+            print(f"  Sigmoid Curve:          {sigmoid:>6.2f}/100")
+            print(f"  Difficulty Adjusted:    {difficulty_adj:>6.2f}/100 ⭐ (Primary)")
+            print(f"  Current (Hybrid):       {mastery:>6.2f}/100 ✓")
+            
+        elif isinstance(skill, SoftSkill):
+            print("\nSoft Skill Algorithms:")
+            
+            # Get applications via reflection
+            applications = skill.to_dict().get('real_world_applications', 0)
+            
+            linear = MasteryAlgorithm.linear_weighted(
+                skill.progress, skill.practice_hours, 1.0, hour_cap=50
+            )
+            sigmoid = MasteryAlgorithm.sigmoid_curve(
+                skill.progress, skill.practice_hours, steepness=0.08
+            )
+            application_focused = MasteryAlgorithm.application_focused(
+                skill.progress, skill.practice_hours, applications
+            )
+            balanced = MasteryAlgorithm.balanced_composite(
+                skill.progress, skill.practice_hours, 
+                min((applications / 20) * 100, 100)
+            )
+            
+            print(f"  Linear Weighted:        {linear:>6.2f}/100")
+            print(f"  Sigmoid Curve:          {sigmoid:>6.2f}/100")
+            print(f"  Application Focused:    {application_focused:>6.2f}/100 ⭐ (Primary)")
+            print(f"  Balanced Composite:     {balanced:>6.2f}/100")
+            print(f"  Current (Hybrid):       {mastery:>6.2f}/100 ✓")
+        
+        print("\n" + "="*70)
+        print("💡 Tip: Different algorithms emphasize different aspects of mastery.")
+        print("    The hybrid approach combines multiple algorithms for accuracy.")
+        print("="*70)
 
 
 # ============================================================================
@@ -481,12 +747,13 @@ class SkillForgeUI:
         print("6. View All Skills")
         print("7. View Statistics")
         print("8. View Skill History")
-        print("9. Save & Exit")
+        print("9. View Mastery Breakdown & Algorithm Analysis")
+        print("10. Save & Exit")
         print("="*70)
     
     def get_choice(self) -> str:
         """Get user menu choice"""
-        return input("Enter your choice (1-9): ").strip()
+        return input("Enter your choice (1-10): ").strip()
     
     def add_technical_skill_flow(self) -> None:
         """Flow for adding technical skill"""
@@ -602,6 +869,24 @@ class SkillForgeUI:
         except Exception as e:
             print(f"✗ Unexpected error: {e}")
     
+    def view_mastery_breakdown_flow(self) -> None:
+        """Flow for viewing mastery breakdown"""
+        try:
+            skills = self.manager.list_skill_names()
+            if not skills:
+                print("\n✗ No skills available. Add some first!")
+                return
+            
+            print("\n--- View Mastery Breakdown ---")
+            print("Available skills:", ", ".join(skills))
+            name = input("Skill name: ").strip()
+            
+            self.manager.view_mastery_breakdown(name)
+        except ValueError as e:
+            print(f"✗ Error: {e}")
+        except Exception as e:
+            print(f"✗ Unexpected error: {e}")
+    
     def run(self) -> None:
         """Main application loop"""
         print("\n🚀 Welcome to SkillForge!")
@@ -629,11 +914,13 @@ class SkillForgeUI:
                 elif choice == '8':
                     self.view_history_flow()
                 elif choice == '9':
+                    self.view_mastery_breakdown_flow()
+                elif choice == '10':
                     self.manager.save_skills()
                     print("\n👋 Thank you for using SkillForge! Keep growing!")
                     break
                 else:
-                    print("\n✗ Invalid choice. Please select 1-9.")
+                    print("\n✗ Invalid choice. Please select 1-10.")
             
             except KeyboardInterrupt:
                 print("\n\n⚠ Interrupted! Saving your progress...")

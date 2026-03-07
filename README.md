@@ -9,7 +9,11 @@ SkillForge is a portfolio-ready Python application that demonstrates enterprise-
 ## ✨ Features
 
 - **Dual Skill Types**: Separate tracking for Technical Skills and Soft Skills
-- **Intelligent Mastery Scoring**: Different calculation formulas optimized for each skill type
+- **Advanced Mastery Algorithms**: 7 different scoring algorithms with hybrid models
+- **Algorithm Comparison**: Compare how different algorithms score your skills
+- **Mastery Breakdown**: Detailed component analysis of your scores
+- **Visual Progress Bars**: ASCII-based progress visualization
+- **Mastery Level Badges**: Descriptive levels from Novice to Master
 - **Progress Tracking**: Monitor your improvement from 0-100%
 - **Practice Hour Logging**: Keep track of time invested in each skill
 - **Real-World Applications**: Log practical uses of soft skills
@@ -84,13 +88,14 @@ No external dependencies required - uses only Python standard library!
 ### Application Flow
 
 1. **Launch**: Application loads previously saved skills from `skillforge_data.json`
-2. **Menu**: Interactive console menu with 9 options
+2. **Menu**: Interactive console menu with 10 options
 3. **Add Skills**: Create technical or soft skills with specific attributes
 4. **Track Progress**: Update progress percentage, log practice hours
-5. **View Portfolio**: Display all skills sorted by mastery score
+5. **View Portfolio**: Display all skills sorted by mastery score with visual bars
 6. **Statistics**: View aggregate statistics across all skills
 7. **History Tracking**: View complete change history for any skill
-8. **Auto-Save**: Data persists automatically on exit
+8. **Algorithm Analysis**: Compare different mastery algorithms and see breakdowns
+9. **Auto-Save**: Data persists automatically on exit
 
 ### User Interaction Example
 
@@ -125,29 +130,77 @@ Difficulty level (1-10): 7
 
 ## 🧮 Mastery Score Formulas
 
-### Technical Skills
+SkillForge uses sophisticated hybrid algorithms that combine multiple mathematical models for accurate mastery assessment.
+
+### Technical Skills Algorithm
+
+**Hybrid Model**: Difficulty-Adjusted (85%) + Exponential Growth (15%)
+
+#### Primary: Difficulty-Adjusted Algorithm
 ```
-Mastery = (Progress × 0.5) + (Practice_Factor × 0.3) + (Difficulty_Bonus × 0.2)
-
-Where:
-- Progress: User-defined completion percentage (0-100%)
-- Practice_Factor: Normalized practice hours (capped at 100 hours = 100%)
-- Difficulty_Bonus: Difficulty level (1-10) converted to percentage
-```
-
-**Rationale**: Technical skills heavily weight actual progress, but reward difficulty and practice time.
-
-### Soft Skills
-```
-Mastery = (Progress × 0.4) + (Practice_Factor × 0.3) + (Application_Factor × 0.3)
-
-Where:
-- Progress: User-defined completion percentage (0-100%)
-- Practice_Factor: Normalized practice hours (capped at 50 hours = 100%)
-- Application_Factor: Real-world applications (capped at 20 applications = 100%)
+Base_Score = (Progress × 0.5) + (Normalized_Hours × 0.3)
+Difficulty_Bonus = (Difficulty_Level / 10) × 0.2
+Final_Score = Base_Score × (1 + Difficulty_Bonus)
 ```
 
-**Rationale**: Soft skills emphasize real-world application and practice over theoretical progress.
+#### Secondary: Exponential Growth Component
+```
+Growth_Factor = 1 + log(1 + Hours/10)
+Growth_Score = Progress × Growth_Factor × 0.15
+```
+
+**Rationale**: Technical skills benefit from difficulty challenges and show exponential improvement with consistent practice. The hybrid approach rewards both complexity and dedication.
+
+### Soft Skills Algorithm
+
+**Hybrid Model**: Application-Focused (75%) + Sigmoid Curve (25%)
+
+#### Primary: Application-Focused Algorithm
+```
+Progress_Component = Progress × 0.35
+Practice_Component = Normalized_Hours × 0.25
+Application_Component = (Applications / 20) × 100 × 0.4
+Final_Score = Sum of all components
+```
+
+#### Secondary: Sigmoid Curve Component
+```
+Combined_Input = (Progress + Hours) / 2
+Sigmoid_Score = 100 / (1 + e^(-0.08 × (Combined_Input - 50)))
+```
+
+**Rationale**: Soft skills emphasize real-world application and follow realistic S-curve learning patterns. Theory alone isn't enough - practical application is crucial.
+
+### Available Algorithms
+
+SkillForge includes 7 different mastery algorithms:
+
+1. **Linear Weighted**: Simple weighted average with diminishing returns
+2. **Exponential Growth**: Rewards consistent practice with exponential gains
+3. **Sigmoid Curve**: Realistic S-curve learning model
+4. **Balanced Composite**: Three-factor balanced approach
+5. **Difficulty Adjusted**: Scales with skill complexity
+6. **Application Focused**: Emphasizes real-world usage
+7. **Time Decay**: Models skill degradation (future feature)
+
+### Mastery Levels
+
+Scores are categorized into descriptive levels:
+
+- **90-100**: 🏆 Master - Complete mastery achieved
+- **75-89**: ⭐ Expert - High proficiency demonstrated
+- **60-74**: 💪 Advanced - Strong competency level
+- **40-59**: 📈 Intermediate - Solid foundation established
+- **20-39**: 🌱 Beginner - Learning in progress
+- **0-19**: 🔰 Novice - Just starting out
+
+### Visual Representation
+
+Each skill displays:
+- Numeric score (0-100)
+- Mastery level badge
+- ASCII progress bar: `[████████████░░░░░░░░] 65.5%`
+- Component breakdown showing contribution of each factor
 
 ## 📜 Skill History Tracking
 
@@ -283,3 +336,4 @@ Feel free to fork this project and add your own enhancements! Some ideas:
 ---
 
 **Built with ❤️ and Python | SkillForge v1.0**
+>>>>>>> a79fbd3 (Update project files)
