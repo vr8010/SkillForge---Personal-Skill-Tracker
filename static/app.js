@@ -1,6 +1,9 @@
 // SkillForge Frontend JavaScript
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Get API base URL from config
+const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.getBaseURL() : 'http://localhost:5000/api';
+
+console.log('API Base URL:', API_BASE_URL);
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {

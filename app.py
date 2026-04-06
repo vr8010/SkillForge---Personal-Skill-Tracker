@@ -9,7 +9,15 @@ from skillforge import SkillForgeManager, TechnicalSkill, SoftSkill, MasteryAlgo
 import os
 
 app = Flask(__name__, static_folder='static', static_url_path='')
-CORS(app)
+
+# Configure CORS for production
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["*"],  # Update with your Vercel domain in production
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Initialize manager
 manager = SkillForgeManager('skillforge_data.json')
@@ -221,8 +229,12 @@ if __name__ == '__main__':
     # Create static directory if it doesn't exist
     os.makedirs('static', exist_ok=True)
     
+    # Get port from environment variable (for deployment platforms)
+    port = int(os.environ.get('PORT', 5000))
+    
     print("🚀 SkillForge Web Server Starting...")
-    print("📱 Open http://localhost:5000 in your browser")
+    print(f"📱 Open http://localhost:{port} in your browser")
     print("⚡ Press Ctrl+C to stop the server")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Use 0.0.0.0 to allow external connections
+    app.run(debug=False, host='0.0.0.0', port=port)
