@@ -6,7 +6,7 @@ Provides REST API endpoints for the web frontend
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from skillforge import SkillForgeManager, TechnicalSkill, SoftSkill, MasteryAlgorithm
-from database import Database
+from database_sqlite import Database
 import os
 
 app = Flask(__name__, static_folder='static', static_url_path='')
