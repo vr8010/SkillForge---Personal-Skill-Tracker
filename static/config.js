@@ -5,7 +5,7 @@ const API_CONFIG = {
     local: 'http://localhost:5000/api',
     
     // For production (update with your Render URL)
-    production: 'https://your-app-name.onrender.com/api',
+    production: 'https://skillforge-personal-skill-tracker.onrender.com/api',
     
     // Auto-detect environment
     getBaseURL: function() {
