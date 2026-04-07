@@ -6,6 +6,7 @@ Provides REST API endpoints for the web frontend
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from skillforge import SkillForgeManager, TechnicalSkill, SoftSkill, MasteryAlgorithm
+from database import Database
 import os
 
 app = Flask(__name__, static_folder='static', static_url_path='')
@@ -19,7 +20,8 @@ CORS(app, resources={
     }
 })
 
-# Initialize manager
+# Initialize database and manager
+db = Database()
 manager = SkillForgeManager('skillforge_data.json')
 
 @app.route('/')
@@ -31,15 +33,48 @@ def index():
 def get_skills():
     """Get all skills"""
     try:
-        skills_data = []
-        for skill in manager._SkillForgeManager__skills:
-            skill_dict = skill.to_dict()
-            skill_dict['mastery_score'] = skill.calculate_mastery_score()
-            skill_dict['mastery_level'] = MasteryAlgorithm.get_mastery_level(
-                skill_dict['mastery_score']
-            )
-            skill_dict['mastery_breakdown'] = skill.get_mastery_breakdown()
-            skills_data.append(skill_dict)
+        # Try database first, fallback to JSON
+        if db.is_connected():
+            db_skills = db.get_all_skills()
+            skills_data = []
+            
+            for skill_dict in db_skills:
+                # Calculate mastery score
+                if skill_dict['skill_type'] == 'technical':
+                    mastery = MasteryAlgorithm.difficulty_adjusted(
+                        skill_dict['progress'],
+                        skill_dict['practice_hours'],
+                        skill_dict.get('difficulty_level', 5)
+                    )
+                else:
+                    mastery = MasteryAlgorithm.application_focused(
+                        skill_dict['progress'],
+                        skill_dict['practice_hours'],
+                        skill_dict.get('real_world_applications', 0)
+                    )
+                
+                skill_dict['mastery_score'] = mastery
+                skill_dict['mastery_level'] = MasteryAlgorithm.get_mastery_level(mastery)
+                skill_dict['skill_type'] = 'Technical Skill' if skill_dict['skill_type'] == 'technical' else 'Soft Skill'
+                
+                # Convert datetime to string
+                if 'created_at' in skill_dict:
+                    skill_dict['created_at'] = skill_dict['created_at'].strftime("%Y-%m-%d %H:%M:%S")
+                if 'last_updated' in skill_dict:
+                    skill_dict['last_updated'] = skill_dict['last_updated'].strftime("%Y-%m-%d %H:%M:%S")
+                
+                skills_data.append(skill_dict)
+        else:
+            # Fallback to JSON file
+            skills_data = []
+            for skill in manager._SkillForgeManager__skills:
+                skill_dict = skill.to_dict()
+                skill_dict['mastery_score'] = skill.calculate_mastery_score()
+                skill_dict['mastery_level'] = MasteryAlgorithm.get_mastery_level(
+                    skill_dict['mastery_score']
+                )
+                skill_dict['mastery_breakdown'] = skill.get_mastery_breakdown()
+                skills_data.append(skill_dict)
         
         # Sort by mastery score
         skills_data.sort(key=lambda x: x['mastery_score'], reverse=True)
@@ -63,19 +98,41 @@ def add_skill():
         name = data.get('name')
         category = data.get('category')
         
+        skill_data = {
+            'name': name,
+            'category': category,
+            'skill_type': skill_type,
+            'progress': 0,
+            'practice_hours': 0
+        }
+        
         if skill_type == 'technical':
             difficulty = int(data.get('difficulty', 5))
-            manager.add_technical_skill(name, category, difficulty)
+            skill_data['difficulty_level'] = difficulty
+            skill_data['real_world_applications'] = None
+            
+            # Add to database if connected
+            if db.is_connected():
+                db.add_skill(skill_data)
+            else:
+                manager.add_technical_skill(name, category, difficulty)
+                manager.save_skills()
         elif skill_type == 'soft':
             applications = int(data.get('applications', 0))
-            manager.add_soft_skill(name, category, applications)
+            skill_data['real_world_applications'] = applications
+            skill_data['difficulty_level'] = None
+            
+            # Add to database if connected
+            if db.is_connected():
+                db.add_skill(skill_data)
+            else:
+                manager.add_soft_skill(name, category, applications)
+                manager.save_skills()
         else:
             return jsonify({
                 'success': False,
                 'error': 'Invalid skill type'
             }), 400
-        
-        manager.save_skills()
         
         return jsonify({
             'success': True,
@@ -99,8 +156,17 @@ def update_progress(skill_name):
         data = request.json
         progress = float(data.get('progress'))
         
-        manager.update_skill_progress(skill_name, progress)
-        manager.save_skills()
+        # Update in database if connected
+        if db.is_connected():
+            success = db.update_skill_progress(skill_name, progress)
+            if not success:
+                return jsonify({
+                    'success': False,
+                    'error': f'Skill "{skill_name}" not found'
+                }), 404
+        else:
+            manager.update_skill_progress(skill_name, progress)
+            manager.save_skills()
         
         return jsonify({
             'success': True,
@@ -124,8 +190,17 @@ def log_hours(skill_name):
         data = request.json
         hours = float(data.get('hours'))
         
-        manager.log_practice_hours(skill_name, hours)
-        manager.save_skills()
+        # Update in database if connected
+        if db.is_connected():
+            success = db.log_practice_hours(skill_name, hours)
+            if not success:
+                return jsonify({
+                    'success': False,
+                    'error': f'Skill "{skill_name}" not found'
+                }), 404
+        else:
+            manager.log_practice_hours(skill_name, hours)
+            manager.save_skills()
         
         return jsonify({
             'success': True,
@@ -146,8 +221,17 @@ def log_hours(skill_name):
 def add_application(skill_name):
     """Add real-world application for soft skill"""
     try:
-        manager.add_soft_skill_application(skill_name)
-        manager.save_skills()
+        # Update in database if connected
+        if db.is_connected():
+            success = db.add_application(skill_name)
+            if not success:
+                return jsonify({
+                    'success': False,
+                    'error': f'Soft skill "{skill_name}" not found'
+                }), 404
+        else:
+            manager.add_soft_skill_application(skill_name)
+            manager.save_skills()
         
         return jsonify({
             'success': True,
@@ -168,16 +252,21 @@ def add_application(skill_name):
 def get_history(skill_name):
     """Get skill history"""
     try:
-        skill = manager._SkillForgeManager__find_skill(skill_name)
-        if not skill:
-            return jsonify({
-                'success': False,
-                'error': f'Skill "{skill_name}" not found'
-            }), 404
+        # Get from database if connected
+        if db.is_connected():
+            history = db.get_skill_history(skill_name)
+        else:
+            skill = manager._SkillForgeManager__find_skill(skill_name)
+            if not skill:
+                return jsonify({
+                    'success': False,
+                    'error': f'Skill "{skill_name}" not found'
+                }), 404
+            history = skill.history
         
         return jsonify({
             'success': True,
-            'history': skill.history
+            'history': history
         })
     except Exception as e:
         return jsonify({
@@ -189,25 +278,66 @@ def get_history(skill_name):
 def get_statistics():
     """Get overall statistics"""
     try:
-        skills = manager._SkillForgeManager__skills
-        
-        if not skills:
-            return jsonify({
-                'success': True,
-                'statistics': {
-                    'total_skills': 0,
-                    'technical_skills': 0,
-                    'soft_skills': 0,
-                    'average_mastery': 0,
-                    'total_hours': 0
-                }
-            })
-        
-        total_skills = len(skills)
-        tech_skills = sum(1 for s in skills if isinstance(s, TechnicalSkill))
-        soft_skills = sum(1 for s in skills if isinstance(s, SoftSkill))
-        avg_mastery = sum(s.calculate_mastery_score() for s in skills) / total_skills
-        total_hours = sum(s.practice_hours for s in skills)
+        # Get from database if connected
+        if db.is_connected():
+            db_skills = db.get_all_skills()
+            
+            if not db_skills:
+                return jsonify({
+                    'success': True,
+                    'statistics': {
+                        'total_skills': 0,
+                        'technical_skills': 0,
+                        'soft_skills': 0,
+                        'average_mastery': 0,
+                        'total_hours': 0
+                    }
+                })
+            
+            total_skills = len(db_skills)
+            tech_skills = sum(1 for s in db_skills if s['skill_type'] == 'technical')
+            soft_skills = sum(1 for s in db_skills if s['skill_type'] == 'soft')
+            
+            # Calculate average mastery
+            total_mastery = 0
+            for skill in db_skills:
+                if skill['skill_type'] == 'technical':
+                    mastery = MasteryAlgorithm.difficulty_adjusted(
+                        skill['progress'],
+                        skill['practice_hours'],
+                        skill.get('difficulty_level', 5)
+                    )
+                else:
+                    mastery = MasteryAlgorithm.application_focused(
+                        skill['progress'],
+                        skill['practice_hours'],
+                        skill.get('real_world_applications', 0)
+                    )
+                total_mastery += mastery
+            
+            avg_mastery = total_mastery / total_skills
+            total_hours = sum(s['practice_hours'] for s in db_skills)
+        else:
+            # Fallback to JSON file
+            skills = manager._SkillForgeManager__skills
+            
+            if not skills:
+                return jsonify({
+                    'success': True,
+                    'statistics': {
+                        'total_skills': 0,
+                        'technical_skills': 0,
+                        'soft_skills': 0,
+                        'average_mastery': 0,
+                        'total_hours': 0
+                    }
+                })
+            
+            total_skills = len(skills)
+            tech_skills = sum(1 for s in skills if isinstance(s, TechnicalSkill))
+            soft_skills = sum(1 for s in skills if isinstance(s, SoftSkill))
+            avg_mastery = sum(s.calculate_mastery_score() for s in skills) / total_skills
+            total_hours = sum(s.practice_hours for s in skills)
         
         return jsonify({
             'success': True,
